@@ -35,7 +35,7 @@ public final class AppCrashHandler implements Thread.UncaughtExceptionHandler {
     private static final String EXTRA_RESTART_ACTIVITY_CLASS = "restart_activity_class";
     private static final String EXTRA_STACK_TRACE = "stack_track";
     private static final int MAX_STACK_TRACE_SIZE = 131071; //128 KB - 1
-    private volatile static AppCrashHandler SINGLETON;
+    private volatile static AppCrashHandler mAppCrashHandler;
     private static Application mAppContext;
     private static Class<? extends Activity> errorActivityClass = null;
     private static Class<? extends Activity> restartActivityClass = null;
@@ -47,19 +47,18 @@ public final class AppCrashHandler implements Thread.UncaughtExceptionHandler {
     }
 
     private static AppCrashHandler getInstance(Context context) {
-        if (SINGLETON == null) {
+        if (mAppCrashHandler == null) {
             synchronized (AppCrashHandler.class) {
-                if (SINGLETON == null) {
-                    SINGLETON = new AppCrashHandler(context);
+                if (mAppCrashHandler == null) {
+                    mAppCrashHandler = new AppCrashHandler(context);
                 }
             }
         }
-        return SINGLETON;
+        return mAppCrashHandler;
     }
 
     public static void setupHandler(Context context) {
         Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
-
         if (oldHandler != null && oldHandler.getClass().getName().startsWith(BuildConfig.APPLICATION_ID)) {
             return;
         }
@@ -303,7 +302,7 @@ public final class AppCrashHandler implements Thread.UncaughtExceptionHandler {
      * @param s The string to capitalize
      * @return The capitalized string
      */
-    public static String capitalize(String s) {
+    private static String capitalize(String s) {
         if (TextUtils.isEmpty(s)) {
             return "";
         }
